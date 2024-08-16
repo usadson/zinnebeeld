@@ -1,7 +1,13 @@
 // Copyright (C) 2024 Tristan Gerritsen <tristan@thewoosh.org>
 // All Rights Reserved.
 
-use glium::uniforms::{AsUniformValue, UniformValue};
+use std::{fs::File, io::BufReader, path::Path, rc::Rc};
+
+use euclid::default::Size2D;
+use glium::{glutin::surface::WindowSurface, texture::{Texture2d, RawImage2d}, uniforms::{AsUniformValue, UniformValue}, Display};
+use image::ImageReader;
+
+use crate::ImageLoadError;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Color {
@@ -56,14 +62,46 @@ impl Color {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
+pub struct Image {
+    size: Size2D<u32>,
+    pub texture: Rc<Texture2d>,
+}
+
+impl Image {
+    pub fn load(display: &Display<WindowSurface>, path: &Path) -> Result<Self, ImageLoadError> {
+        let reader = BufReader::new(File::open(path)?);
+        let img = ImageReader::new(reader)
+                .with_guessed_format()?
+                .decode()?
+                .to_rgba8();
+        let dimensions = img.dimensions();
+        let size = Size2D::from(dimensions);
+
+        let img = RawImage2d::from_raw_rgba_reversed(&img.into_raw(), dimensions);
+        let texture = glium::texture::Texture2d::new(display, img)?;
+        Ok(Self {
+            texture: Rc::new(texture),
+            size,
+        })
+    }
+}
+
+#[derive(Debug, Clone)]
 pub enum Material {
     Color(Color),
+    Image(Image),
 }
 
 impl From<Color> for Material {
     fn from(value: Color) -> Self {
         Self::Color(value)
+    }
+}
+
+impl From<Image> for Material {
+    fn from(value: Image) -> Self {
+        Self::Image(value)
     }
 }
 

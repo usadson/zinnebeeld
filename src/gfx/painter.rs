@@ -26,8 +26,6 @@ impl Painter {
     }
 
     pub fn paint_filled_rect(&mut self, rect: Rect<f32>, brush: impl Into<Material>) {
-        let mesh = Mesh::new_square(&self.display);
-
         let x_scale = rect.width() / self.target_size.width;
         let y_scale = rect.height() / self.target_size.height;
 
@@ -37,20 +35,29 @@ impl Painter {
             .then_translate(Vector3D::new(x_scale / 2.0 - 1.0, 1.0 - y_scale / 2.0, 0.0))
             .to_arrays();
 
-        let program;
-        let uniforms;
         match brush.into() {
             Material::Color(color) => {
-                program = ShaderPrograms::create_solid_color(&self.display);
+                let mesh = Mesh::new_square(&self.display);
+                let program = ShaderPrograms::create_solid_color(&self.display);
 
-                uniforms = uniform! {
+                let uniforms = uniform! {
                     matrix: matrix,
                     color: color,
                 };
+                mesh.draw(&mut self.target, &program, &uniforms);
+            }
+            Material::Image(image) => {
+                let mesh = Mesh::new_textured_square(&self.display);
+                let program = ShaderPrograms::create_textured(&self.display);
+
+                let uniforms = uniform! {
+                    matrix: matrix,
+                    tex: image.texture.as_ref(),
+                };
+
+                mesh.draw(&mut self.target, &program, &uniforms);
             }
         };
-
-        self.target.draw(mesh.vbo(), mesh.ibo(), &program, &uniforms, &Default::default()).unwrap();
     }
 
     pub fn finish(self) {

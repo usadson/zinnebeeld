@@ -2,10 +2,12 @@
 // All Rights Reserved.
 
 mod app;
+mod error;
 mod gfx;
 
 pub use self::{
     app::*,
+    error::*,
     gfx::*,
 };
 

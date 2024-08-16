@@ -1,6 +1,8 @@
 // Copyright (C) 2024 Tristan Gerritsen <tristan@thewoosh.org>
 // All Rights Reserved.
 
+use std::path::Path;
+
 use euclid::default::{Point2D, Rect, Size2D};
 use glium::{
     glutin::surface::WindowSurface,
@@ -13,7 +15,7 @@ use glium::{
     Display,
 };
 
-use crate::{Color, Painter};
+use crate::{Image, Painter};
 
 pub struct App {
     pub window: Window,
@@ -27,7 +29,8 @@ impl App {
                 Point2D::new(200.0, 200.0),
                 Size2D::new(400.0, 200.0),
             ),
-            Color::YELLOW,
+            //Color::YELLOW,
+            Image::load(&self.display, Path::new("res/test-image.png")).unwrap(),
         );
         painter.finish();
     }

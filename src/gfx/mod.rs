@@ -8,12 +8,9 @@ mod shader;
 mod vertex;
 
 pub use self::{
-    material::{
-        Color,
-        Material,
-    },
+    material::*,
     mesh::Mesh,
     painter::Painter,
     shader::ShaderPrograms,
-    vertex::Vertex,
+    vertex::*,
 };

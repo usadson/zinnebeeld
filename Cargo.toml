@@ -6,3 +6,5 @@ edition = "2021"
 [dependencies]
 euclid = "0.22"
 glium = "0.35"
+image = { version = "*", features = ["png"] }
+thiserror = "1"
