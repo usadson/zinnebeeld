@@ -10,3 +10,6 @@ glium = "0.35"
 image = { version = "0.25", features = ["png"] }
 softbuffer = "0.4"
 thiserror = "1"
+
+[profile.release]
+debug = true
