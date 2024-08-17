@@ -1,38 +1,38 @@
 // Copyright (C) 2024 Tristan Gerritsen <tristan@thewoosh.org>
 // All Rights Reserved.
 
-use std::path::Path;
+use std::{path::Path, rc::Rc};
 
 use euclid::default::{Point2D, Rect, Size2D};
-use glium::{
-    glutin::surface::WindowSurface,
-    winit::{
-        application::ApplicationHandler,
-        event::WindowEvent,
-        event_loop::ActiveEventLoop,
-        window::{Window, WindowId},
-    },
-    Display,
+use glium::winit::{
+    application::ApplicationHandler,
+    event::WindowEvent,
+    event_loop::ActiveEventLoop,
+    window::{Window, WindowId},
 };
 
-use crate::{Image, Painter};
+use crate::Context;
 
 pub struct App {
-    pub window: Window,
-    pub display: Display<WindowSurface>,
+    pub window: Rc<Window>,
+    pub context: Context,
 }
+
 impl App {
-    fn draw(&self) {
-        let mut painter = Painter::new(self.display.clone());
-        painter.paint_filled_rect(
-            Rect::new(
-                Point2D::new(200.0, 200.0),
-                Size2D::new(400.0, 200.0),
-            ),
-            //Color::YELLOW,
-            Image::load(&self.display, Path::new("res/test-image.png")).unwrap(),
-        );
-        painter.finish();
+    fn draw(&mut self) {
+        let image = self.context.load_image(Path::new("res/test-image.png")).unwrap();
+
+        self.context.paint(|painter| {
+
+            painter.paint_filled_rect(
+                Rect::new(
+                    Point2D::new(200.0, 200.0),
+                    Size2D::new(400.0, 200.0),
+                ),
+                // crate::Color::YELLOW,
+                image,
+            );
+        });
     }
 }
 
@@ -53,7 +53,7 @@ impl ApplicationHandler for App {
 
             WindowEvent::Resized(size) => {
                 let size = size.to_logical(self.window.scale_factor());
-                self.display.resize((size.width, size.height));
+                self.context.resize(Size2D::new(size.width, size.height));
             }
 
             _ => (),

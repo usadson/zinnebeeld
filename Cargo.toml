@@ -4,7 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+dashmap = "6"
 euclid = "0.22"
 glium = "0.35"
-image = { version = "*", features = ["png"] }
+image = { version = "0.25", features = ["png"] }
 thiserror = "1"

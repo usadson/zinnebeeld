@@ -1,13 +1,12 @@
 // Copyright (C) 2024 Tristan Gerritsen <tristan@thewoosh.org>
 // All Rights Reserved.
 
-use std::{fs::File, io::BufReader, path::Path, rc::Rc};
+use std::{fs::File, io::BufReader, path::Path};
 
 use euclid::default::Size2D;
-use glium::{glutin::surface::WindowSurface, texture::{Texture2d, RawImage2d}, uniforms::{AsUniformValue, UniformValue}, Display};
-use image::ImageReader;
+use image::{ImageReader, RgbaImage};
 
-use crate::ImageLoadError;
+use crate::{ImageLoadError, ResourceId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Color {
@@ -64,12 +63,17 @@ impl Color {
 
 #[derive(Debug, Clone)]
 pub struct Image {
-    size: Size2D<u32>,
-    pub texture: Rc<Texture2d>,
+    pub(super) size: Size2D<u32>,
+    pub(super) id: ResourceId,
 }
 
 impl Image {
-    pub fn load(display: &Display<WindowSurface>, path: &Path) -> Result<Self, ImageLoadError> {
+    #[must_use]
+    pub const fn size(&self) -> Size2D<u32> {
+        self.size
+    }
+
+    pub(super) fn load(path: &Path) -> Result<(RgbaImage, Size2D<u32>), ImageLoadError> {
         let reader = BufReader::new(File::open(path)?);
         let img = ImageReader::new(reader)
                 .with_guessed_format()?
@@ -77,13 +81,7 @@ impl Image {
                 .to_rgba8();
         let dimensions = img.dimensions();
         let size = Size2D::from(dimensions);
-
-        let img = RawImage2d::from_raw_rgba_reversed(&img.into_raw(), dimensions);
-        let texture = glium::texture::Texture2d::new(display, img)?;
-        Ok(Self {
-            texture: Rc::new(texture),
-            size,
-        })
+        Ok((img, size))
     }
 }
 
@@ -102,11 +100,5 @@ impl From<Color> for Material {
 impl From<Image> for Material {
     fn from(value: Image) -> Self {
         Self::Image(value)
-    }
-}
-
-impl AsUniformValue for Color {
-    fn as_uniform_value(&self) -> UniformValue<'_> {
-        UniformValue::Vec4(self.to_f32_rgba())
     }
 }

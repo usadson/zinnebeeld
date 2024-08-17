@@ -4,28 +4,29 @@
 mod app;
 mod error;
 mod gfx;
+mod resource;
+
+pub type EventTy = ();
 
 pub use self::{
     app::*,
     error::*,
     gfx::*,
+    resource::*,
 };
 
-use glium::{backend::glutin::SimpleWindowBuilder, winit::event_loop::EventLoop};
+use glium::winit::event_loop::EventLoop;
 
 fn main() {
     let event_loop = EventLoop::builder()
         .build()
         .expect("event loop building");
 
-    let (window, display) = SimpleWindowBuilder::new()
-        .with_inner_size(1600, 1200)
-        .with_title("Zinnebeeld")
-        .build(&event_loop);
+    let (context, window) = Context::new(&event_loop);
 
     let mut app = App {
         window,
-        display,
+        context,
     };
 
     let _ = event_loop.run_app(&mut app);
