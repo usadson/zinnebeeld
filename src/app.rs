@@ -11,7 +11,7 @@ use glium::winit::{
     window::{Window, WindowId},
 };
 
-use crate::Context;
+use crate::{Color, Context};
 
 pub struct App {
     pub window: Rc<Window>,
@@ -29,7 +29,14 @@ impl App {
                     Point2D::new(200.0, 200.0),
                     Size2D::new(400.0, 200.0),
                 ),
-                // crate::Color::YELLOW,
+                Color::YELLOW,
+            );
+
+            painter.paint_filled_rect(
+                Rect::new(
+                    Point2D::new(400.0, 400.0),
+                    Size2D::new(640.0, 480.0),
+                ),
                 image,
             );
         });

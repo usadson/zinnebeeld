@@ -59,9 +59,23 @@ impl Color {
     pub const fn to_f32_rgba(&self) -> [f32; 4] {
         [self.r as _, self.g as _, self.b as _, self.a as _]
     }
+
+    #[inline]
+    #[must_use]
+    pub const fn as_bgra(&self) -> u32 {
+        let r = self.r as u32;
+        let g = self.g as u32;
+        let b = self.b as u32;
+        let a = self.a as u32;
+
+        a << 24
+            | b << 16
+            | g << 8
+            | r
+    }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct Image {
     pub(super) size: Size2D<u32>,
     pub(super) id: ResourceId,

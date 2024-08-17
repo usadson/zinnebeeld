@@ -30,6 +30,10 @@ impl GLPainter {
             resources,
         }
     }
+
+    pub fn finish(self) {
+        self.target.finish().unwrap();
+    }
 }
 
 impl PainterImplementation for GLPainter {
@@ -68,9 +72,5 @@ impl PainterImplementation for GLPainter {
                 });
             }
         };
-    }
-
-    fn finish(&mut self) {
-        self.target.set_finish().unwrap();
     }
 }

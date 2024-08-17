@@ -9,6 +9,7 @@ mod shader;
 mod vertex;
 
 mod gl;
+mod soft;
 
 pub use self::{
     context::*,

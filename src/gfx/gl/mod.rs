@@ -13,10 +13,11 @@ use crate::{
     EventTy,
     Image,
     ImageLoadError,
-    Painter,
     ResourceManager,
     ResourceNamespace,
 };
+
+use super::painter::PainterImplementation;
 
 mod painter;
 
@@ -26,7 +27,7 @@ pub struct GLContext {
 }
 
 impl GLContext {
-    pub fn new(event_loop: &EventLoop<EventTy>) -> (Self, Rc<Window>) {
+    pub fn new(event_loop: &EventLoop<EventTy>) -> (Box<dyn ContextImplementation>, Rc<Window>) {
         let (window, display) = SimpleWindowBuilder::new()
             .with_inner_size(1600, 1200)
             .with_title("Zinnebeeld")
@@ -37,7 +38,7 @@ impl GLContext {
             resources: Rc::new(GLResources::new()),
         };
 
-        (this, Rc::new(window))
+        (Box::new(this), Rc::new(window))
     }
 }
 
@@ -59,8 +60,12 @@ impl ContextImplementation for GLContext {
         })
     }
 
-    fn paint_frame(&self) -> Painter {
-        Painter::new(GLPainter::new(self.display.clone(), Rc::clone(&self.resources)))
+    fn paint_frame(&self, f: &mut dyn FnMut(&mut dyn PainterImplementation)) {
+        let mut painter = GLPainter::new(self.display.clone(), Rc::clone(&self.resources));
+
+        f(&mut painter);
+
+        painter.finish();
     }
 }
 

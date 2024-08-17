@@ -8,4 +8,5 @@ dashmap = "6"
 euclid = "0.22"
 glium = "0.35"
 image = { version = "0.25", features = ["png"] }
+softbuffer = "0.4"
 thiserror = "1"
